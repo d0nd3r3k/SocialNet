@@ -26,10 +26,10 @@ define(['views/index', 'views/register', 'views/login', 'views/forgotpassword'],
                 this.changeView( new LoginView());
             },
             forgotpassword: function(){
-                this.changeview( new ForgotPasswordView());
+                this.changeView( new ForgotPasswordView());
             },
             register: function(){
-                this.changeview ( new RegisterView());
+                this.changeView ( new RegisterView());
             }
         });
         
