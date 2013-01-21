@@ -3,6 +3,9 @@ var app = express();
 var nodemailer = require('nodemailer');
 var MemoryStore = require('connect').session.MemoryStore;
 
+
+var account_manager = require('./lib/account_manager')
+
 // Import the data layer
 var mongoose = require('mongoose');
 var config = {
@@ -113,14 +116,7 @@ app.get('/resetPassword', function(req,res){
 });
 
 app.post('/resetPassword', function(req, res){
-    var accountId = req.param('accountId', null);
-    var password = req.param('password', null);
-    
-    if( null != accountId && null != password){
-        Account.changePassword(accountId, password);
-    }
-    
-    res.render('resetPasswordSuccess.jade');
+  account_manager.resetPassword(req, res);
 });
 
 app.listen(8080);
