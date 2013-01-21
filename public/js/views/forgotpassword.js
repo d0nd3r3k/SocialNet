@@ -9,7 +9,7 @@ define(['text!templates/forgotpassword.html'], function(forgotpasswordTemplate){
         password: function(e) {
             e.preventDefault()
             $.post('/forgotpassword', {
-                email: $('input[name=email').val()
+                email: $('input[name=email]').val()
             }, function(data){
                 console.log(data);
             });

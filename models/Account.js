@@ -85,62 +85,68 @@ module.exports = function(config, mongoose, nodemailer){
                 callback(false);
             }
             else{
-                var smtpTransport = nodemailer.createTransport('SMTP', config.mail);
-                resetPasswordUrl += '?account=' + doc._id;
-                smtpTransport.sendMail({
-                    from:'SocialNet@donaldderek.com',
-                    to: doc.email,
-                    subject: 'SocialNet Password Request',
-                    text: 'Click here to reset your password: ' + resetPasswordUrl
-                },
-                function forgotPasswordResult(err){
-                    if(err){
-                        callback(false);
-                    }
-                    else{
-                        callback(true);
+                var smtpTransport = nodemailer.createTransport('SMTP', {
+                    service: "Gmail",
+                    auth: {
+                        user: "donaldderek.haddad@gmail.com",
+                        pass: "xxxxxxxx"
                     }
                 });
-            }
+            resetPasswordUrl += '?account=' + doc._id;
+            smtpTransport.sendMail({
+                from:'SocialNet@donaldderek.com',
+                to: doc.email,
+                subject: 'SocialNet Password Request',
+                text: 'Click here to reset your password: ' + resetPasswordUrl
+            },
+            function forgotPasswordResult(err){
+                if(err){
+                    callback(false);
+                }
+                else{
+                    callback(true);
+                }
+            });
+        }
         });
-    };
+};
     
-    var login = function(email, password, callback){
+var login = function(email, password, callback){
       
-      var shaSum = crypto.createHash('sha256');
-      shaSum.update(password);
+    var shaSum = crypto.createHash('sha256');
+    shaSum.update(password);
       
-      Account.findOne({
-         email:email,
-         password:shaSum.digest('hex')
-      },
-      function(err,doc){
-          callback(null != doc);
-      }); 
-    };
+    Account.findOne({
+        email:email,
+        password:shaSum.digest('hex')
+    },
+    function(err,doc){
+        callback(null != doc);
+    }); 
+};
     
-    var register = function (email, password, firstName, lastName){
-        var shaSum = crypto.createHash('sha256');
-        shaSum.update(password);
+var register = function (email, password, firstName, lastName){
+    var shaSum = crypto.createHash('sha256');
+    shaSum.update(password);
         
-        console.log('Registering ' + email);
-        var user = new Account({
-           email: email,
-           name:{
-               first: firstName,
-               last: lastName
-           },
-           password: shaSum.digest('hex')
-        });
-        user.save(registerCallback);
-        console.log('Save command was Sent');
-    }
+    console.log('Registering ' + email);
+    var user = new Account({
+        email: email,
+        name:{
+            first: firstName,
+            last: lastName
+        },
+        password: shaSum.digest('hex')
+    });
+    user.save(registerCallback);
+    console.log('Save command was Sent');
+}
     
-    return {
-        register: register,
-        forgotPassword: forgotPassword,
-        changePassword: changePassword,
-        login: login,
-        Account: Account
-    }
+return {
+    register: register,
+    forgotPassword: forgotPassword,
+    changePassword: changePassword,
+    login: login,
+    Account: Account
+}
 }

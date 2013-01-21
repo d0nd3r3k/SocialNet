@@ -95,6 +95,7 @@ app.post('/forgotpassword', function(req, res){
    
     Account.forgotPassword(email, resetPasswordUrl, function(success){
         if(success){
+            console.log("Sending reset mail");
             res.send(200);
         } else{
             // Username or password not found
