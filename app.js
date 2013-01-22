@@ -2,6 +2,7 @@ var express = require('express');
 var app = express();
 var nodemailer = require('nodemailer');
 var MemoryStore = require('connect').session.MemoryStore;
+//var dbPath = 'mongodb://localhost/nodebackbone';
 
 // Import the data layer
 var mongoose = require('mongoose');
@@ -23,6 +24,7 @@ app.configure(function(){
         secret: "X123SA24SA", 
         store: new MemoryStore()
     }));
+    
     mongoose.connection.on('open', function (ref) {
         console.log('Connected to mongo server.');
     });
@@ -54,6 +56,7 @@ app.post('/login', function(req, res){
         } 
         console.log('login was successful');
         req.session.loggedIn = true;
+        req.session.accountId = account._id;
         res.send(200);
     });
 });
@@ -83,6 +86,57 @@ app.get('/account/authenticated', function(req, res){
         
     }
 });
+
+app.get('/accounts/:id/activity', function(req, res){
+    var accountId = req.params.id == 'me'
+    ? req.session.accountId
+    : req.params.id;
+    models.Account.findById(accountId, function(account){
+        res.send(account.activity);
+    });                    
+});
+
+
+app.get('/accounts/:id/status', function(req, res){
+    var accountId = req.params.id == 'me'
+    ? req.session.accountId
+    : req.params.id;
+    models.Account.findById(accountId, function(account){
+        res.send(account.status);
+    });                    
+});
+
+app.post('/accounts/:id/status', function(req, res){
+    var accountId = req.params.id == 'me'
+    ? req.session.accountId
+    : req.params.id;
+    models.Account.findById(accountId, function(account){
+        status = {
+            name: account.name,
+            status: req.param('status', '')
+        };
+        account.status.push(status);
+        
+        // Push the status to all friends
+        account.activity.push(status);
+        account.save(function (err){
+            if(err) {
+                console.log('Error Saving account: ' + err);
+            }
+        });
+    });    
+    res.send(200);
+});
+
+app.get('/account/:id', function(req,res){
+    var accountId = req.params.id == 'me'
+    ? req.session.accountId
+    : req.params.id;
+    
+    Account.findOne({_id:accountId}, function(account){
+        res.send(account);
+    });
+})
 
 app.post('/forgotpassword', function(req, res){
     var hostname = req.header.host;
@@ -125,3 +179,4 @@ app.post('/resetPassword', function(req, res){
 });
 
 app.listen(8080);
+console.log('Listening on port 8080');
